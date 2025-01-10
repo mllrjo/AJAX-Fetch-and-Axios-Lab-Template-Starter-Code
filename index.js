@@ -24,18 +24,22 @@ const API_KEY = 'live_RqcpufqIYDEej0P93azEfd3pLZny3o83qjdH9yOy33owj36dahrNmx5ZE3
  */
 console.log("test");
 async function initialLoad() {
-  // const response = await fetch("https://api.thecatapi.com/v1/breeds/_limit=10", {
-  const response = await fetch("https://api.thecatapi.com/v1/breeds", {
+  try {
+    const response = await fetch("https://api.thecatapi.com/v1/breeds/?limit=10", {
+    //const response = await fetch("https://api.thecatapi.com/v1/breeds", {
     // method: "POST",
-    headers: { "Content-Type": "application/json", },
+    headers: { "Content-Type": "application/json", "mode": "no-cors" },
     // body: 'this will contain any data you need to send to the server. MUST BE STRING'
-  });
-  const data = await response.json();
-  console.log(data.length);
-  for (let i = 0; i < data.length; i++) {
-    console.log(data[i]);
+    });
+    const data = await response.json();
+    console.log(data.length);
+    for (let i = 0; i < data.length; i++) {
+      console.log(data[i]);
+    }
+    return data;
+  } catch (error) { 
+    console.error(error);
   }
-  return data;
 }
 async function main() {
   const data = await initialLoad();
@@ -55,16 +59,26 @@ async function retrieveBreed() {
   breedSelectEl.onchange = async function() {
     var breedId = document.getElementById("breedSelect").value;
     console.log(breedId);
-    const response = await fetch("https://api.thecatapi.com/v1/breeds/search?breed_ids=aege", {
-      // method: "GET",
-      headers: { "Content-Type": "application/json", },
-      // body: 'this will contain any data you need to send to the server. MUST BE STRING'
-    });
-    const data = await response.json();
-    console.log(data);
+    try {
+      // const response = await fetch("https://api.thecatapi.com/v1/breeds/search?q=" + breedId, {
+      const response = await fetch("https://api.thecatapi.com/v1/images/search?limit=100&breed_ids=" + breedId + "\&api_key=" + API_KEY, {
+        // method: "GET",
+        headers: { "Content-Type": "application/json", },
+        // body: 'this will contain any data you need to send to the server. MUST BE STRING'
+      });
+      try {
+        const data = await response.json();
+        console.log(data);
+      } catch (error) {
+        console.error("json ", error);
+      }
+    } catch (error) {
+      console.error("fetch ", error);
+    }
   }
+  Carousel.clear();
+  Carousel.start();
 }
- 
 main();
 /**
  * 2. Create an event handler for breedSelect that does the following:
@@ -83,7 +97,7 @@ main();
 // At this point you need to pusth your code to your own GitHub repo
 // go to the folder you cloned in today and clone your repo and give it the name below.
 
-Carousel.createCarouselItem();
+// Carousel.createCarouselItem();
 /**
  * 3. Fork your own sandbox, creating a new one named "JavaScript Axios Lab."
  */
