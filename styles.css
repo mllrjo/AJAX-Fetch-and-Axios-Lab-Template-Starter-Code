@@ -78,3 +78,10 @@ body {
     height: 17em;
   }
 }
+
+#infoDump {
+  height=100px;
+  display:block;
+  text-align: center;
+  color:black;
+}

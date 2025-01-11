@@ -1,3 +1,4 @@
+//import { createPopper } from '@popperjs/core/index.js';
 import * as Carousel from './Carousel.js';
 // You have axios, you don't need to import it
 console.log(axios);
@@ -23,8 +24,34 @@ const API_KEY = 'live_RqcpufqIYDEej0P93azEfd3pLZny3o83qjdH9yOy33owj36dahrNmx5ZE3
  * This function should execute immediately.
  */
 console.log("test");
+async function breedInfo() {
+  let breedId = document.getElementById("breedSelect").value;
+  console.log(breedId);
+  try {
+    let query = "https://api.thecatapi.com/v1/breeds/" + breedId;
+    console.log(query);
+    const response = await fetch(query , {
+    method: "GET",
+    headers: { "Content-Type": "application/json", "mode": "no-cors" },
+    // body: 'this will contain any data you need to send to the server. MUST BE STRING'
+    });
+    const breedData = await response.json();
+    console.log(breedData);
+    let breedTraits = Object.entries(breedData).map(([key, value]) => ({[key] : value}));
+    for (let i = 0; i < breedTraits.length; i++) {
+      console.log(breedTraits[i]);
+    }
+    let infoDumpElement = document.getElementById("infoDump");
+    infoDumpElement = breedData;
+
+  } catch (error) { 
+    console.error(error);
+  }
+}
+
 async function initialLoad() {
   try {
+    /* Limit to 10 for testing purposes */
     const response = await fetch("https://api.thecatapi.com/v1/breeds/?limit=10", {
     //const response = await fetch("https://api.thecatapi.com/v1/breeds", {
     // method: "POST",
@@ -52,34 +79,9 @@ async function main() {
     breedSelectEl.appendChild(entry);
   }
   console.log(breedSelectEl);
+
   retrieveBreed();
 }
-async function retrieveBreed() {
-  let breedSelectEl = document.getElementById("breedSelect");
-  breedSelectEl.onchange = async function() {
-    var breedId = document.getElementById("breedSelect").value;
-    console.log(breedId);
-    try {
-      // const response = await fetch("https://api.thecatapi.com/v1/breeds/search?q=" + breedId, {
-      const response = await fetch("https://api.thecatapi.com/v1/images/search?limit=100&breed_ids=" + breedId + "\&api_key=" + API_KEY, {
-        // method: "GET",
-        headers: { "Content-Type": "application/json", },
-        // body: 'this will contain any data you need to send to the server. MUST BE STRING'
-      });
-      try {
-        const data = await response.json();
-        console.log(data);
-      } catch (error) {
-        console.error("json ", error);
-      }
-    } catch (error) {
-      console.error("fetch ", error);
-    }
-  }
-  Carousel.clear();
-  Carousel.start();
-}
-main();
 /**
  * 2. Create an event handler for breedSelect that does the following:
  * - Retrieve information on the selected breed from the cat API using fetch().
@@ -87,13 +89,65 @@ main();
  *  - Check the API documentation if you're only getting a single object.
  * - For each object in the response array, create a new element for the carousel.
  *  - Append each of these new elements to the carousel.
- * - Use the other data you have been given to create an informational section within the infoDump element.
  *  - Be creative with how you create DOM elements and HTML.
  *  - Feel free to edit index.html and styles.css to suit your needs, but be careful!
  *  - Remember that functionality comes first, but user experience and design are important.
  * - Each new selection should clear, re-populate, and restart the Carousel.
  * - Add a call to this function to the end of your initialLoad function above to create the initial carousel.
- */
+**/
+// async function addFavourites() {}
+
+
+async function load(data) {
+  Carousel.clear();
+  Carousel.start();
+  let carouselItem;
+  var breedId = document.getElementById("breedSelect").value; 
+  const imgAlt = [];
+  for (let i = 0; i < data.length; i++) {
+    console.log(data[i]);
+    imgAlt[i] = breedId + "." + i;
+    carouselItem = Carousel.createCarouselItem(data[i].url, imgAlt[i], data[i].id);
+    Carousel.appendCarousel(carouselItem);
+
+  }
+}
+
+async function retrieveBreed() {
+  let breedSelectEl = document.getElementById("breedSelect");
+  breedSelectEl.onchange = async function() {
+    var breedId = document.getElementById("breedSelect").value;
+        // for (let i = 0; i < data.length; i++) {
+        //   console.log(data[i]);
+      //  createCarouselItem(data[i]., imgAlt, imgId)
+       //  }
+    console.log(breedId);
+    breedInfo();
+    try {
+      const response = await fetch("https://api.thecatapi.com/v1/images/search?limit=100&breed_ids=" + breedId + "\&api_key=" + API_KEY, {
+        // method: "GET",
+        headers: { "Content-Type": "application/json", "mode": "no-cors" },
+        // body: 'this will contain any data you need to send to the server. MUST BE STRING'
+      });
+      try {
+        const data = await response.json();
+        console.log(data);
+        console.log(data.length);
+        const data_response = await load(data);
+      } catch (error) {
+        console.error("json ", error);
+      }
+    } catch (error) {
+      console.error("fetch ", error);
+    }
+ 
+  }
+
+}
+
+
+main();
+
 // At this point you need to pusth your code to your own GitHub repo
 // go to the folder you cloned in today and clone your repo and give it the name below.
 
